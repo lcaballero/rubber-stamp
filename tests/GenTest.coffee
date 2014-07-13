@@ -88,10 +88,10 @@ describe 'GenTest =>', ->
 
   describe 'translate(file) =>', ->
 
-    gen     = null
-    target  = 'files/targets/t2'
-    source  = 'files/src/t2'
-    name    = 'apply test'
+    gen      = null
+    target   = 'files/targets/t2'
+    source   = 'files/src/t2'
+    name     = 'apply test'
     template = 'template.tpl'
     json     = 'template.json'
 
