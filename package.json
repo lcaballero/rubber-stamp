@@ -1,0 +1,24 @@
+{
+  "name": "rubber-stamp",
+  "version": "0.0.1",
+  "description": "A project templating library.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter list --compilers coffee:coffee-script/register tests/"
+  },
+  "keywords": [
+    "template",
+    "templating",
+    "scaffold"
+  ],
+  "author": "Lucas Caballero <lucas.caballero@gmail.com>",
+  "license": "Eclipse Public License (EPL)",
+  "devDependencies": {
+    "chai": "^1.9.1",
+    "mocha": "^1.20.1"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "nject": "^1.2.0"
+  }
+}

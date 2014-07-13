@@ -1,0 +1,1 @@
+console.log('NewLib.coffee')

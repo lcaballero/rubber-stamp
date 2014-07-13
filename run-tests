@@ -1,0 +1,7 @@
+#!/bin/bash
+
+rm -rf files/targets/t4
+rm -rf files/targets/t5
+
+mocha --colors --reporter list --compilers coffee:coffee-script/register tests/
+
