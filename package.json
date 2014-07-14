@@ -1,6 +1,6 @@
 {
   "name": "rubber-stamp",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A project templating library.",
   "main": "index.js",
   "scripts": {

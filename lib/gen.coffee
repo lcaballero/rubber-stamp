@@ -7,14 +7,18 @@ module.exports = do ->
   UTF8 = 'utf8'
 
   class Generator
-    constructor: (source, target, model, name) ->
+    constructor: (source, target, model, name, root) ->
       @source     = source
       @target     = target
       @model      = model
       @_execs     = []
       @_name      = name
       @_isApplied = false
+      @_isRoot    = not root?
+      @_root      = root || @
 
+    getRoot   : -> @_root
+    isRoot    : -> @_isRoot
     getName   : -> @_name
     getModel  : -> @model
     getTarget : -> @target
@@ -38,17 +42,35 @@ module.exports = do ->
       else
         throw new Error('.copy() source template file does not exist: ' + file)
 
-    mkdir: () ->
-      if !fs.existsSync(@target)
-        fs.mkdirSync(@target)
+    mkdir = (dir) -> (gen) ->
+      if !fs.existsSync(dir)
+        fs.mkdirSync(dir)
+
+    mkdir: (dirs...) ->
+      if dirs.length >= 1
+        for d in dirs
+          @add(mkdir(@to(d)))
+      else
+        @add(mkdir(@getTarget()))
       this
 
+    mkdirs: (dir) ->
+      if !fs.existsSync(dir)
+        @mkdirs(path.dirname(dir))
+        @add(mkdir(@to(dir)))
+      this
+
+    cd = (g) -> -> g
+
     in : (dir) ->
-      new Generator(
+      g = new Generator(
         @from(dir),
         @to(dir),
         @getModel(),
-        @getName())
+        @getName()
+        @getRoot())
+      @add(cd(g))
+      g
 
     add: (fn) ->
       @_execs.push(fn)
@@ -56,7 +78,7 @@ module.exports = do ->
 
     apply: () ->
       for f in @_execs
-        applied = f(new Generator(@getSource(), @getTarget(), @getModel(), @getName()))
+        applied = f(new Generator(@getSource(), @getTarget(), @getModel(), @getName(), @getRoot()))
         if applied? and _.isFunction(applied.apply) && !applied._isApplied
           applied.apply()
 
@@ -83,7 +105,10 @@ module.exports = do ->
       this
 
     copy: (from...) ->
-      @add(copy(f)) for f in from
+      for f in from
+        @mkdirs(path.dirname(f))
+        @add(copy(f))
+
       this
 
   return {

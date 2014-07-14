@@ -2,6 +2,14 @@
 
 rm -rf files/targets/t4
 rm -rf files/targets/t5
+rm -rf files/targets/t6
+rm -rf files/targets/t7
+rm -rf files/targets/t8
 
 mocha --colors --reporter list --compilers coffee:coffee-script/register tests/
 
+rm -rf files/targets/t4
+rm -rf files/targets/t5
+rm -rf files/targets/t6
+rm -rf files/targets/t7
+rm -rf files/targets/t8
