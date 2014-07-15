@@ -54,10 +54,11 @@ module.exports = do ->
         @add(mkdir(@getTarget()))
       this
 
-    mkdirs: (dir) ->
-      if !fs.existsSync(dir)
-        @mkdirs(path.dirname(dir))
-        @add(mkdir(@to(dir)))
+    mkdirs: (dirs...) ->
+      for dir in dirs
+        if !fs.existsSync(dir)
+          @mkdirs(path.dirname(dir))
+          @add(mkdir(@to(dir)))
       this
 
     cd = (g) -> -> g
