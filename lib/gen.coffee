@@ -56,9 +56,10 @@ module.exports = do ->
 
     mkdirs: (dirs...) ->
       for dir in dirs
-        if !fs.existsSync(dir)
-          @mkdirs(path.dirname(dir))
-          @add(mkdir(@to(dir)))
+        f = @to(dir)
+        if !fs.existsSync(f)
+          @mkdirs(path.dirname(f))
+          @add(mkdir(f))
       this
 
     cd = (g) -> -> g
@@ -95,6 +96,7 @@ module.exports = do ->
     ###
     process: (files...) ->
       @add(runTemplating(@from(f), @to(f))) for f in files
+      this
 
     ###
       translate(from, to) causes the contents of the 'from' file to be processed as a

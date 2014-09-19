@@ -2,6 +2,8 @@
 
 # Introduction
 
+Rubber-stamp is a library for generating project and project related files at the start of a project.
+
 ## Overview
 
 ## Installation
