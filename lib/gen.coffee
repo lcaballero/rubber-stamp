@@ -1,6 +1,10 @@
 path  = require 'path'
 fs    = require 'fs'
 _     = require 'lodash'
+async = require 'async'
+proc  = require 'child_process'
+spawn = proc.spawn
+
 
 module.exports = do ->
 
@@ -46,6 +50,8 @@ module.exports = do ->
       if !fs.existsSync(dir)
         fs.mkdirSync(dir)
 
+    cd = (g) -> -> g
+
     mkdir: (dirs...) ->
       if dirs.length >= 1
         for d in dirs
@@ -62,8 +68,6 @@ module.exports = do ->
           @add(mkdir(f))
       this
 
-    cd = (g) -> -> g
-
     in : (dir) ->
       g = new Generator(
         @from(dir),
@@ -78,13 +82,24 @@ module.exports = do ->
       @_execs.push(fn)
       this
 
-    apply: () ->
-      for f in @_execs
-        applied = f(new Generator(@getSource(), @getTarget(), @getModel(), @getName(), @getRoot()))
-        if applied? and _.isFunction(applied.apply) && !applied._isApplied
-          applied.apply()
+    apply: (done) ->
 
-      @_isApplied = true
+      async.mapSeries(@_execs, (f, cb) =>
+        ng = new Generator(@getSource(), @getTarget(), @getModel(), @getName(), @getRoot())
+
+        if f.length <= 1
+          applied = f(ng)
+          if applied? and _.isFunction(applied.apply) and !applied._isApplied
+            applied.apply()
+            applied._isApplied = true
+          cb(null, true)
+        else
+          f(ng, cb)
+
+      , (err, res) =>
+        @_isApplied = true
+        if done? then done()
+      )
 
     hasApplications: () ->
       @_execs.length > 0
@@ -113,6 +128,60 @@ module.exports = do ->
         @add(copy(f))
 
       this
+
+
+    ###
+      This command takes an object with the properties { options, commands }.
+      Options are those passed to child_process.spawn setting up the current
+      working directory (cwd), and io which is defaulted to [stdin, stdout, stderr]
+      if no other options are provided.
+
+      The commands property is an array of objects of the form
+      { name: 'command', args: [...args...] }
+
+      So, something like this:
+
+      {
+        options:
+          cwd   : path.resolve(process.cwd(), target)
+          stdio : [ process.stdin, process.stdout, process.stderr ]
+        commands: [
+          { name: 'git', args: ['init'] }
+        ]
+      }
+
+      Each command is ran in series synchronously.  This is to prevent multiple
+      processes trying to write to a file at the same time.  Every process
+      is expected to return 0 when exiting normally and non-zero which
+      the process handler will consider as an error and prevent further
+      commands if one in the series fails.
+    ###
+    run : (opts) ->
+      @add(run(opts))
+
+    run = (opts) -> (gen, _done) =>
+
+      { options, commands } = opts or {}
+
+      options       ?= {}
+      options.cwd   ?= path.resolve(process.cwd(), @getTarget())
+      options.stdio ?= [ process.stdin, process.stdout, process.stderr ]
+
+
+      handleClose = (next) -> (code, signal) ->
+        if code isnt 0
+          next(new Error("code: #{code}, signal: #{signal}"))
+        else if next? and code is 0
+          next(null, code)
+
+      handleProc = (e, cb) ->
+        proc = spawn(e.name, e.args, options)
+        proc.on('exit', handleClose(cb))
+
+      async.mapSeries(commands, handleProc, (err, res) ->
+        if err? then _done(err, null)
+        else _done(null, res)
+      )
 
   return {
     using : (source, target, model, name) ->
