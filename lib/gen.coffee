@@ -161,12 +161,11 @@ module.exports = do ->
 
     run = (opts) -> (gen, _done) =>
 
-      { options, commands } = opts or {}
+      { options, commands } = (opts or {})
 
       options       ?= {}
-      options.cwd   ?= path.resolve(process.cwd(), @getTarget())
+      options.cwd   ?= path.resolve(process.cwd(), gen.getTarget())
       options.stdio ?= [ process.stdin, process.stdout, process.stderr ]
-
 
       handleClose = (next) -> (code, signal) ->
         if code isnt 0
