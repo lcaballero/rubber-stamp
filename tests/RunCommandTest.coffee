@@ -5,8 +5,7 @@ path  = require('path')
 fs    = require 'fs'
 
 
-describe.only 'RunCommandTest =>', ->
-
+describe 'RunCommandTest =>', ->
 
   it 'should run the command specified', (done) ->
     dir = path.resolve('files/targets/t9')

@@ -1,14 +1,16 @@
-path  = require 'path'
-fs    = require 'fs'
-_     = require 'lodash'
-async = require 'async'
-proc  = require 'child_process'
-spawn = proc.spawn
+path      = require 'path'
+fs        = require 'fs'
+_         = require 'lodash'
+async     = require 'async'
+proc      = require 'child_process'
+spawn     = proc.spawn
+{ Glob }  = require 'glob'
 
 
 module.exports = do ->
 
   UTF8 = 'utf8'
+
 
   class Generator
     constructor: (source, target, model, name, root) ->
@@ -181,6 +183,37 @@ module.exports = do ->
         if err? then _done(err, null)
         else _done(null, res)
       )
+
+    # isFile uses the node fs package and stat to determine if the provided
+    # file is indeed a file and not a directory or symbolic link, etc.
+    isFile = (f) ->
+      fs.statSync(f).isFile()
+
+    # isDirectory uses the node fs package and stat to determine if the file
+    # provided is indeed a directory and not a file or symbolic link, etc.;l
+    isDirectory = (f) ->
+      fs.statSync(f).isDirectory()
+
+    deepCopy: (accept, translate) ->
+
+      opts = { cwd: @getSource(), sync: true }
+      glob = new Glob('**/*', opts, (err, matches) =>
+
+        for match in matches
+          if accept(match)
+            xfm = translate(match)
+            src = @from(match)
+
+            if isDirectory(src)
+              @mkdir(match)
+            else if isFile(src)
+              if xfm
+                @translate(match, xfm)
+              else
+                @copy(match)
+      )
+
+      @
 
   return {
     using : (source, target, model, name) ->

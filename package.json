@@ -21,6 +21,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "coffee-script": "^1.7.1",
+    "glob": "^4.0.6",
     "lodash": "^2.4.1",
     "nject": "^1.2.0"
   },

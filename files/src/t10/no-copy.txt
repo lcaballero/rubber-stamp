@@ -1,0 +1,1 @@
+Should not find this file copied to target

@@ -21,7 +21,7 @@ describe 'GenTest =>', ->
 
     it 'should make the source directory in the target directory', ->
       dir = 'files/targets/t1'
-      Gen.using('source', dir, {}).mkdir()
+      Gen.using('source', dir, {}).mkdir().apply()
       expect(fs.existsSync(dir)).to.be.true
 
   describe 'to =>', ->
@@ -57,7 +57,7 @@ describe 'GenTest =>', ->
       g = Gen.using('', '', {})
       expect(g.getName()).to.not.be.ok
 
-    it 'generator shold save the name it is given', ->
+    it 'generator should save the name it is given', ->
       name = 'getName'
       g = Gen.using('', '', {}, name)
       expect(g.getName()).to.equal(name)
@@ -103,7 +103,7 @@ describe 'GenTest =>', ->
         fs.unlinkSync(gen.to(json))
 
     it 'should find the source template file and create the target file', ->
-      gen.translate(template, json).apply()
+      gen.mkdir().translate(template, json).apply()
 
       sourceTemplate = path.resolve(source, template)
       targetTemplate = path.resolve(target, json)
@@ -112,7 +112,7 @@ describe 'GenTest =>', ->
       expect(fs.existsSync(targetTemplate), 'should find target template: ' + targetTemplate).to.be.true
 
     it 'should have processed the source template', ->
-      gen.translate(template, json).apply()
+      gen.mkdir().translate(template, json).apply()
       expect(fs.readFileSync(gen.to(json), 'utf8')).to.string(name)
 
     it 'should have no applications prior to processing a file', ->

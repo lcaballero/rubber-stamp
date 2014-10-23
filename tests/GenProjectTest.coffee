@@ -1,14 +1,12 @@
 require('./Deps')();
 
-Gen   = require('../lib/gen')
-path  = require('path')
-fs    = require 'fs'
+Gen           = require '../lib/gen'
+path          = require 'path'
+fs            = require 'fs'
+{ Glob }      = require 'glob'
+{ exists }    = require './Helpers'
 
 describe 'GenProjectTest =>', ->
-
-  exists = (root, dir) ->
-    file = path.resolve(root, dir)
-    expect(fs.existsSync(file), 'should have created: ' + file).to.be.true
 
   describe 'Gen target/t4 =>', ->
 
@@ -126,4 +124,46 @@ describe 'GenProjectTest =>', ->
       exists(target, 'd1/d2/d3/')
       exists(target, 'd1/d2/d3/d4')
       exists(target, 'd1/d2/d3/d4/some-file.txt')
+
+
+  describe '.deepCopy =>', ->
+
+    it 'should deep copy the directory and translate the .ftl files as they are found', ->
+
+    describe 'filter and renaming =>', ->
+
+      source = 'files/src/t10'
+      target = 'files/targets/t10'
+      model  =
+        symbol : 'symbol'
+
+      beforeEach ->
+        Gen.using(source, target, model, 'Deep copy generator')
+          .mkdir()
+          .deepCopy((match) ->
+            no_copy = ['src/no-copy.txt', 'tests/no-copy.txt', 'no-copy.txt']
+            not (match in no_copy)
+          , (match) ->
+            switch (match)
+              when 'index.js.ftl'                   then 'index.js'
+              when 'src/FirstClass.coffee.ftl'      then 'src/TranslatedClass.coffee'
+              when 'tests/FirstTest.coffee.ftl'     then 'tests/TranslatedTest.coffee'
+              when 'gitignore'                      then '.gitignore'
+              else
+                false
+          )
+          .apply()
+
+      it 'should call map function on each file as specified', ->
+        exists(
+          target
+          '.gitignore'
+          'index.js'
+          'license'
+          'readme.md'
+          'index.js'
+          'src/TranslatedClass.coffee'
+          'tests/TranslatedTest.coffee'
+        )
+
 
