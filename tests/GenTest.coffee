@@ -1,8 +1,12 @@
 require('./Deps')();
 
-Gen   = require('../lib/gen')
-path  = require('path')
-fs    = require 'fs'
+Gen                   = require('../lib/gen')
+path                  = require('path')
+fs                    = require 'fs'
+{ exists, rm, mkdir } = require './Helpers'
+
+setup     = (f) -> (done) -> mkdir('files/targets', f, done)
+tearDown  = (f) -> (done) -> rm('files/targets', f, done)
 
 describe 'GenTest =>', ->
 
@@ -18,6 +22,8 @@ describe 'GenTest =>', ->
     expect(g.model).to.equal('model')
 
   describe 'mkdir =>', ->
+
+    afterEach tearDown('t1')
 
     it 'should make the source directory in the target directory', ->
       dir = 'files/targets/t1'
@@ -95,12 +101,16 @@ describe 'GenTest =>', ->
     template = 'template.tpl'
     json     = 'template.json'
 
+    beforeEach setup('t2')
+
     beforeEach ->
       gen = Gen.using(source, target, {name:name}, name)
 
     afterEach ->
       if fs.existsSync(gen.to(json))
         fs.unlinkSync(gen.to(json))
+
+    afterEach tearDown('t2')
 
     it 'should find the source template file and create the target file', ->
       gen.mkdir().translate(template, json).apply()
@@ -132,12 +142,16 @@ describe 'GenTest =>', ->
     name    = 'apply test'
     json    = 'package.json'
 
+    beforeEach setup('t3')
+
     beforeEach ->
       gen = Gen.using(source, target, {name:name}, name)
 
     afterEach ->
       if fs.existsSync(gen.to(json))
         fs.unlinkSync(gen.to(json))
+
+    afterEach tearDown('t3')
 
     it 'should have created the target file', ->
       gen.copy(json).apply()

@@ -4,7 +4,11 @@ Gen           = require '../lib/gen'
 path          = require 'path'
 fs            = require 'fs'
 { Glob }      = require 'glob'
-{ exists }    = require './Helpers'
+{ exists, rm, mkdir }    = require './Helpers'
+
+setup     = (f) -> (done) -> mkdir('files/targets', f, done)
+tearDown  = (f) -> (done) -> rm('files/targets', f, done)
+
 
 describe 'GenProjectTest =>', ->
 
@@ -13,6 +17,8 @@ describe 'GenProjectTest =>', ->
     source = 'files/src/t4'
     target = 'files/targets/t4'
 
+    beforeEach setup('t4')
+
     beforeEach ->
       Gen.using(source, target, {}, 'GenProjectTest 1')
         .mkdir()
@@ -20,6 +26,8 @@ describe 'GenProjectTest =>', ->
         .add((gn) -> gn.in('tests').mkdir().copy('NewLibTest.coffee'))
         .copy('index.js', 'package.json')
         .apply()
+
+    afterEach tearDown('t4')
 
     it 'should have created the target directory t4/', ->
       exists('.', target)
@@ -38,6 +46,7 @@ describe 'GenProjectTest =>', ->
     source = 'files/src/t5'
     target = 'files/targets/t5'
 
+    beforeEach setup('t5')
     beforeEach ->
       Gen.using(source, target, {}, 'GenProjectTest 1')
         .mkdir()
@@ -46,6 +55,8 @@ describe 'GenProjectTest =>', ->
         .translate('index.js', 'main.js')
         .translate('package.ftl.json', 'package.json')
         .apply()
+
+    afterEach tearDown('t5')
 
     it 'should have renamed the file NewLib.coffee to new-lib.coffee', ->
       exists(target, 'lib/new-lib.coffee')
@@ -61,6 +72,8 @@ describe 'GenProjectTest =>', ->
     source = 'files/src/t6'
     target = 'files/targets/t6'
 
+    beforeEach setup('t6')
+
     beforeEach ->
       Gen.using(source, target, {}, 'GenProjectTest 1')
         .mkdir()
@@ -70,6 +83,8 @@ describe 'GenProjectTest =>', ->
         .in('../tests').mkdir().translate('NewLibTest.coffee', 'new-lib-test.coffee')
         .getRoot()
         .apply()
+
+    afterEach tearDown('t6')
 
     it 'should have renamed the file NewLib.coffee to new-lib.coffee', ->
       exists(target, '.')
@@ -89,12 +104,15 @@ describe 'GenProjectTest =>', ->
     target = 'files/targets/t7'
     file   = "d1/d2/d3/d4/some-file.txt"
 
+    beforeEach setup('t7')
+
     beforeEach ->
       Gen.using(source, target, {}, 'GenProjectTest 1')
       .mkdir()
       .mkdirs("d1/d2/d3/d4/")
       .apply()
 
+    afterEach tearDown('t7')
 
     it 'should have create all the directories required to copy the nested file', ->
       exists(target, 'd1/')
@@ -112,11 +130,15 @@ describe 'GenProjectTest =>', ->
     target = 'files/targets/t8'
     file   = "d1/d2/d3/d4/some-file.txt"
 
+    beforeEach setup('t8')
+
     beforeEach ->
       Gen.using(source, target, {}, 'GenProjectTest 1')
         .mkdir()
         .copy("d1/d2/d3/d4/some-file.txt")
         .apply()
+
+    afterEach tearDown('t8')
 
     it 'should have create all the directories required to copy the nested file', ->
       exists(target, 'd1/')
@@ -137,6 +159,8 @@ describe 'GenProjectTest =>', ->
       model  =
         symbol : 'symbol'
 
+      beforeEach setup('t10')
+
       beforeEach ->
         Gen.using(source, target, model, 'Deep copy generator')
           .mkdir()
@@ -153,6 +177,8 @@ describe 'GenProjectTest =>', ->
                 false
           )
           .apply()
+
+      afterEach tearDown('t10')
 
       it 'should call map function on each file as specified', ->
         exists(
