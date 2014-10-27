@@ -42,10 +42,17 @@ module.exports = do ->
     )
 
   rm = (cwd, t, cb) ->
-    cmds =
-      target : cwd
-      commands: [ { name: 'rm', args: ['-rf', t] } ]
-    run(cmds, cb)
+    f = path.resolve(cwd, t)
+    console.log('rm f:', f)
+
+    if fs.existsSync(f)
+      cmds =
+        target : cwd
+        commands: [ { name: 'rm', args: ['-rf', t] } ]
+      run(cmds, cb)
+    else
+      cb(null, 0)
+
 
   mkdir = (cwd, t, cb) ->
     cmds =

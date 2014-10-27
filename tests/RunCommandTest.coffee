@@ -13,7 +13,7 @@ describe 'RunCommandTest =>', ->
 
   afterEach tearDown('t9')
 
-  it 'should run the command specified', (done) ->
+  it.skip 'should run the command specified', (done) ->
 
     dir = path.resolve('files/targets/t9')
 
@@ -32,3 +32,4 @@ describe 'RunCommandTest =>', ->
         expect(fs.existsSync(git)).to.be.true
         done()
       )
+

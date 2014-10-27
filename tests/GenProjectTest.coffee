@@ -6,9 +6,12 @@ fs            = require 'fs'
 { Glob }      = require 'glob'
 { exists, rm, mkdir }    = require './Helpers'
 
-setup     = (f) -> (done) -> mkdir('files/targets', f, done)
-tearDown  = (f) -> (done) -> rm('files/targets', f, done)
-
+setup     = (f) -> (done) ->
+  console.log('\nsetup', f)
+  mkdir('files/targets', f, done)
+tearDown  = (f) -> (done) ->
+  console.log('tearDown', f)
+  rm('files/targets', f, done)
 
 describe 'GenProjectTest =>', ->
 
