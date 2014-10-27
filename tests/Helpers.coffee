@@ -55,10 +55,16 @@ module.exports = do ->
 
 
   mkdir = (cwd, t, cb) ->
-    cmds =
-      target : cwd
-      commands: [ { name: 'mkdir', args: ['-p', t] } ]
-    run(cmds, cb)
+    f = path.resolve(cwd, t)
+    console.log('mkdir t: ', f)
+
+    if fs.existsSync(f)
+      cb(null, 0)
+    else
+      cmds =
+        target : cwd
+        commands: [ { name: 'mkdir', args: ['-p', t] } ]
+      run(cmds, cb)
 
   contains  : contains
   rm        : rm
