@@ -13,7 +13,7 @@ describe 'RunCommandTest =>', ->
 
   afterEach tearDown('t9')
 
-  it.skip 'should run the command specified', (done) ->
+  it 'should run the command specified', (done) ->
 
     dir = path.resolve('files/targets/t9')
 

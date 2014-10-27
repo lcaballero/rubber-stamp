@@ -43,9 +43,6 @@ module.exports = do ->
 
   rm = (cwd, t, cb) ->
     f = path.resolve(cwd, t)
-    console.log('cwd:', cwd)
-    console.log('rm f:', f)
-
     if fs.existsSync(f)
       cmds =
         target : cwd
@@ -57,9 +54,6 @@ module.exports = do ->
 
   mkdir = (cwd, t, cb) ->
     f = path.resolve(cwd, t)
-    console.log('cwd:', cwd)
-    console.log('mkdir t: ', f)
-
     if fs.existsSync(f)
       cb(null, 0)
     else
